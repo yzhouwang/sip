@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Noto Sans JP', 'Space Grotesk', system-ui, sans-serif;
+
+  --color-bg: #fefcf8;
+  --color-bg-card: #ffffff;
+  --color-bg-input: #f4f0e8;
+  --color-text: #1a1a1a;
+  --color-text-muted: #999999;
+  --color-text-light: #bbbbbb;
+  --color-border: #e8e4dc;
+
+  --color-wine: #d81b60;
+  --color-wine-bg: #ffe0ea;
+  --color-whisky: #e65100;
+  --color-whisky-bg: #ffe0b2;
+  --color-beer: #f9a825;
+  --color-beer-bg: #fff8d0;
+  --color-sake: #00acc1;
+  --color-sake-bg: #d0f4f8;
+  --color-cocktail: #5c6bc0;
+  --color-cocktail-bg: #e0e4f8;
+  --color-other: #66bb6a;
+  --color-other-bg: #dcedc8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+#root {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+}
