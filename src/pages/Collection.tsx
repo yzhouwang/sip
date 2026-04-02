@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion, AnimatePresence } from 'framer-motion'
-import { db, DRINK_TYPES, DRINK_LABELS, type DrinkType } from '../lib/db'
+import { db, DRINK_TYPES, DRINK_LABELS, DRINK_EMOJI, type DrinkType } from '../lib/db'
 import { DrinkCard } from '../components/DrinkCard'
 
 const FILTER_COLORS: Record<string, string> = {
@@ -13,6 +13,20 @@ const FILTER_COLORS: Record<string, string> = {
   sake: 'bg-sake-bg text-sake',
   cocktail: 'bg-cocktail-bg text-cocktail',
   other: 'bg-other-bg text-other',
+}
+
+function SkeletonCard({ wide }: { wide?: boolean }) {
+  return (
+    <div
+      className={`rounded-3xl overflow-hidden ${wide ? 'col-span-2 min-h-[160px]' : 'min-h-[190px]'} bg-bg-input animate-pulse`}
+    />
+  )
+}
+
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
 }
 
 export function Collection() {
@@ -40,12 +54,22 @@ export function Collection() {
     return results
   }, [filter, search, sort])
 
+  // undefined = still loading, array = loaded
+  const isLoading = tastings === undefined
   const count = tastings?.length ?? 0
+  const hasFilters = filter !== 'all' || search.trim().length > 0
   const featured = tastings?.[0]
   const rest = tastings?.slice(1) ?? []
 
   return (
-    <div className="pb-24 px-4">
+    <motion.div
+      className="pb-24 px-4"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.2 }}
+    >
       {/* Header */}
       <div className="pt-5 pb-1 flex items-end justify-between">
         <div>
@@ -53,7 +77,7 @@ export function Collection() {
             Sip.
           </h1>
           <div className="mt-2.5 inline-flex items-center gap-1.5 bg-text text-white px-3.5 py-1.5 rounded-full text-[13px] font-semibold">
-            🍶 {count} tasting{count !== 1 ? 's' : ''}
+            🍶 {isLoading ? '...' : `${count} tasting${count !== 1 ? 's' : ''}`}
           </div>
         </div>
         <div className="flex gap-2">
@@ -121,7 +145,15 @@ export function Collection() {
       </div>
 
       {/* Cards */}
-      {count === 0 ? (
+      {isLoading ? (
+        /* Skeleton loading state */
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <SkeletonCard wide />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : count === 0 && !hasFilters ? (
+        /* True empty state — no tastings at all */
         <div className="mt-20 text-center">
           <div className="text-6xl mb-4">🥂</div>
           <div className="text-xl font-bold text-text">Log your first sip</div>
@@ -134,6 +166,23 @@ export function Collection() {
           >
             + Add Tasting
           </button>
+        </div>
+      ) : count === 0 && hasFilters ? (
+        /* Filtered-empty state — filters active but no matches */
+        <div className="mt-16 text-center">
+          <div className="text-4xl mb-3 opacity-60">
+            {filter !== 'all' ? DRINK_EMOJI[filter] : '🔍'}
+          </div>
+          <div className="text-base font-bold text-text-muted">
+            {search.trim()
+              ? `No matches for "${search.trim()}"`
+              : `No ${filter !== 'all' ? DRINK_LABELS[filter].toLowerCase() : ''} tastings yet`}
+          </div>
+          <div className="text-sm text-text-light mt-1.5">
+            {search.trim()
+              ? 'Try a different search term'
+              : 'Try a different filter or log one now'}
+          </div>
         </div>
       ) : (
         <motion.div layout className="grid grid-cols-2 gap-3 mt-3">
@@ -166,6 +215,6 @@ export function Collection() {
       >
         +
       </motion.button>
-    </div>
+    </motion.div>
   )
 }

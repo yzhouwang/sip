@@ -1,0 +1,11 @@
+{
+  "name": "sip-server",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch index.ts",
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.7.0"
+  }
+}

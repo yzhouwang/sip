@@ -1,6 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { motion } from 'framer-motion'
 import { db, FLAVORS, DRINK_TYPES, DRINK_LABELS } from '../lib/db'
 import { FLAVOR_COLORS, DRINK_HEX } from '../lib/theme'
+
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+}
 
 function RadarChart({ data }: { data: { label: string; emoji: string; value: number }[] }) {
   if (data.length < 3) return null
@@ -126,7 +133,14 @@ export function TasteDNA() {
     .sort((a, b) => b.count - a.count)
 
   return (
-    <div className="pb-24 px-5">
+    <motion.div
+      className="pb-24 px-5"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.2 }}
+    >
       <div className="pt-5">
         <h2 className="text-4xl font-black tracking-tighter font-display">Taste DNA</h2>
         <p className="text-sm text-text-muted mt-1.5">
@@ -199,6 +213,6 @@ export function TasteDNA() {
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   )
 }

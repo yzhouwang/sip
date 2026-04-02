@@ -10,16 +10,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
+      workbox: {
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^(?!\/__).*/],
+      },
       manifest: {
         name: 'Sip — Tasting Notes',
         short_name: 'Sip',
         description: 'Log every sip. Wine, whisky, beer, sake, and everything in between.',
+        start_url: '/',
         theme_color: '#fefcf8',
         background_color: '#fefcf8',
         display: 'standalone',
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
       },
     }),

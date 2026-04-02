@@ -1,14 +1,23 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { motion } from 'framer-motion'
 import { db, DRINK_EMOJI, DRINK_LABELS, FLAVORS } from '../lib/db'
+import { deleteTasting } from '../lib/tastings'
 import { DRINK_COLORS, RATING_LABELS } from '../lib/theme'
+
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+}
 
 export function TastingDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [photoUrl, setPhotoUrl] = useState<string>()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteError, setDeleteError] = useState<string>()
 
   const tasting = useLiveQuery(async () => {
     if (!id) return null
@@ -34,12 +43,24 @@ export function TastingDetail() {
   const isLightText = tasting.drinkType !== 'beer'
 
   const handleDelete = async () => {
-    await db.tastings.delete(tasting.id)
-    navigate('/')
+    try {
+      await deleteTasting(tasting.id)
+      navigate('/')
+    } catch (err) {
+      console.error('Delete failed:', err)
+      setDeleteError('Delete failed. Try again.')
+    }
   }
 
   return (
-    <div className="pb-8">
+    <motion.div
+      className="pb-8"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.2 }}
+    >
       {/* Hero */}
       <div className={`${colors.card} min-h-[280px] relative flex flex-col`}>
         {photoUrl ? (
@@ -148,6 +169,11 @@ export function TastingDetail() {
 
         {/* Delete */}
         <div className="mt-10 pt-5 border-t border-border">
+          {deleteError && (
+            <div className="mb-3 px-4 py-3 rounded-2xl bg-[#c62828]/10 text-[#c62828] text-sm font-bold text-center">
+              {deleteError}
+            </div>
+          )}
           {showDeleteConfirm ? (
             <div className="flex gap-3">
               <button
@@ -173,6 +199,6 @@ export function TastingDetail() {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

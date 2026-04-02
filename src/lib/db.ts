@@ -49,11 +49,28 @@ export interface Tasting {
   rating: number // 1-5
   photo?: Blob
   photoThumb?: Blob
+  hasPhoto: boolean // survives Safari Blob eviction
   flavors: FlavorId[]
   notes: string
   location: string
   createdAt: Date
   updatedAt: Date
+}
+
+/** DTO shape for server sync — URLs instead of Blobs, ISO strings instead of Dates */
+export interface TastingDTO {
+  id: string
+  drinkType: DrinkType
+  name: string
+  rating: number
+  hasPhoto: boolean
+  photoUrl?: string
+  thumbUrl?: string
+  flavors: FlavorId[]
+  notes: string
+  location: string
+  createdAt: string
+  updatedAt: string
 }
 
 const db = new Dexie('SipDB') as Dexie & {
@@ -62,6 +79,18 @@ const db = new Dexie('SipDB') as Dexie & {
 
 db.version(1).stores({
   tastings: 'id, drinkType, name, rating, createdAt',
+})
+
+// v2: add updatedAt index for sync, hasPhoto for eviction guard
+db.version(2).stores({
+  tastings: 'id, drinkType, name, rating, createdAt, updatedAt',
+}).upgrade((tx) => {
+  return tx.table('tastings').toCollection().modify((tasting) => {
+    // Backfill hasPhoto for existing records
+    if (tasting.hasPhoto === undefined) {
+      tasting.hasPhoto = !!(tasting.photo || tasting.photoThumb)
+    }
+  })
 })
 
 export { db }
