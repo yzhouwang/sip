@@ -71,42 +71,40 @@ export function Collection() {
       exit="exit"
       transition={{ duration: 0.2 }}
     >
-      {/* Gradient Header */}
+      {/* Gradient Header — extends to cover title + count */}
       <div
-        className="px-5 pb-3 pt-5 flex items-end justify-between transition-all duration-500"
+        className="px-5 pt-6 pb-5 transition-all duration-500"
         style={{ background: HEADER_GRADIENTS[filter] }}
       >
-        <div>
+        <div className="flex items-end justify-between">
           <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
             Sip.
           </h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-none cursor-pointer"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => setSort(sort === 'date' ? 'rating' : 'date')}
+              className="h-10 px-3 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white border-none cursor-pointer"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                <path d="M3 6h18M3 12h12M3 18h6"/>
+              </svg>
+              {sort === 'date' ? 'Date' : 'Rating'}
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-none cursor-pointer"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-          </button>
-          <button
-            onClick={() => setSort(sort === 'date' ? 'rating' : 'date')}
-            className="h-10 px-3 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white border-none cursor-pointer"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-              <path d="M3 6h18M3 12h12M3 18h6"/>
-            </svg>
-            {sort === 'date' ? 'Date' : 'Rating'}
-          </button>
-        </div>
-      </div>
-
-      {/* Count badge */}
-      <div className="px-5 mt-3">
-        <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold"
-          style={{ background: 'rgba(26,26,26,0.9)', color: 'white' }}>
-          🍶 {isLoading ? '...' : `${count} tasting${count !== 1 ? 's' : ''}`}
+        {/* Count badge — inside the gradient */}
+        <div className="mt-4">
+          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white">
+            🍶 {isLoading ? '...' : `${count} tasting${count !== 1 ? 's' : ''}`}
+          </div>
         </div>
       </div>
 
@@ -132,39 +130,54 @@ export function Collection() {
       </AnimatePresence>
 
       {/* Filter pills */}
-      <div className="relative mt-4">
-        <div className="flex gap-2 overflow-x-auto pb-1 px-5 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+      <div className="relative" style={{ marginTop: 20 }}>
+        <div
+          className="flex gap-2 overflow-x-auto scrollbar-hide"
+          style={{ scrollbarWidth: 'none', padding: '0 20px 4px' }}
+        >
           <button
             onClick={() => setFilter('all')}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 ${
-              filter === 'all'
-                ? 'bg-text text-white scale-105'
-                : 'bg-white text-text-muted'
-            }`}
+            className={`whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-sm font-bold`}
+            style={{
+              padding: '10px 20px',
+              borderRadius: 9999,
+              background: filter === 'all' ? '#1a1a1a' : '#ffffff',
+              color: filter === 'all' ? '#ffffff' : '#999999',
+              transform: filter === 'all' ? 'scale(1.05)' : 'scale(1)',
+            }}
           >
             All
           </button>
-          {DRINK_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilter(filter === type ? 'all' : type)}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 ${
-                filter === type
-                  ? `bg-${type} text-white scale-105`
-                  : `bg-${type}-bg text-${type}`
-              }`}
-            >
-              {DRINK_LABELS[type]}
-            </button>
-          ))}
+          {DRINK_TYPES.map((type) => {
+            const selected = filter === type
+            return (
+              <button
+                key={type}
+                onClick={() => setFilter(filter === type ? 'all' : type)}
+                className="whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-sm font-bold"
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: 9999,
+                  background: selected ? `var(--color-${type})` : `var(--color-${type}-bg)`,
+                  color: selected ? '#ffffff' : `var(--color-${type})`,
+                  transform: selected ? 'scale(1.05)' : 'scale(1)',
+                }}
+              >
+                {DRINK_LABELS[type]}
+              </button>
+            )
+          })}
         </div>
         {/* Fade hint */}
-        <div className="absolute right-0 top-0 bottom-1 w-12 bg-gradient-to-l from-bg to-transparent pointer-events-none" />
+        <div
+          className="absolute right-0 top-0 bottom-1 pointer-events-none"
+          style={{ width: 48, background: 'linear-gradient(to left, #fefcf8, transparent)' }}
+        />
       </div>
 
       {/* Cards */}
       {isLoading ? (
-        <div className="px-5 mt-4 flex flex-col gap-3">
+        <div className="px-5 mt-5 flex flex-col gap-3">
           <SkeletonCard wide />
           <div className="flex gap-3">
             <div className="flex-[6]"><SkeletonCard /></div>
@@ -219,7 +232,7 @@ export function Collection() {
           </div>
         </div>
       ) : (
-        <div className="px-5 mt-4 flex flex-col gap-3">
+        <div className="px-5 mt-5 flex flex-col gap-3">
           <AnimatePresence>
             {/* Featured card — full width, tall */}
             {featured && (
