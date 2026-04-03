@@ -483,7 +483,7 @@ export function Settings() {
       </div>
 
       <div className="mt-10 text-center text-xs text-text-light">
-        <p className="font-bold">Sip v1.1</p>
+        <p className="font-bold">Sip v1.2</p>
         <p className="mt-1">
           {isSyncConfigured() ? 'Cloud backup enabled' : 'Your data stays on this device'}
         </p>
