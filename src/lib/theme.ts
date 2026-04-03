@@ -40,12 +40,20 @@ export const FLAVOR_COLORS: Record<string, string> = {
 export const RATING_LABELS = ['', 'Nope', 'Meh', 'Solid', 'Great', 'All-timer']
 
 // Header gradient per drink filter (Izakaya Menu Board direction)
+// Uses var(--color-bg) so gradient endpoint auto-resolves in dark mode
 export const HEADER_GRADIENTS: Record<string, string> = {
-  all: 'linear-gradient(135deg, #e65100 0%, #ff8f00 40%, #fefcf8 100%)',
-  wine: 'linear-gradient(135deg, #d81b60 0%, #e91e63 40%, #fefcf8 100%)',
-  whisky: 'linear-gradient(135deg, #e65100 0%, #ff8f00 40%, #fefcf8 100%)',
-  beer: 'linear-gradient(135deg, #f57f17 0%, #f9a825 40%, #fefcf8 100%)',
-  sake: 'linear-gradient(135deg, #00838f 0%, #00acc1 40%, #fefcf8 100%)',
-  cocktail: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, #fefcf8 100%)',
-  other: 'linear-gradient(135deg, #388e3c 0%, #66bb6a 40%, #fefcf8 100%)',
+  all: 'linear-gradient(135deg, #e65100 0%, #ff8f00 40%, var(--color-bg) 100%)',
+  wine: 'linear-gradient(135deg, #d81b60 0%, #e91e63 40%, var(--color-bg) 100%)',
+  whisky: 'linear-gradient(135deg, #e65100 0%, #ff8f00 40%, var(--color-bg) 100%)',
+  beer: 'linear-gradient(135deg, #f57f17 0%, #f9a825 40%, var(--color-bg) 100%)',
+  sake: 'linear-gradient(135deg, #00838f 0%, #00acc1 40%, var(--color-bg) 100%)',
+  cocktail: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, var(--color-bg) 100%)',
+  other: 'linear-gradient(135deg, #388e3c 0%, #66bb6a 40%, var(--color-bg) 100%)',
+  map: 'linear-gradient(135deg, #00695c 0%, #00acc1 40%, var(--color-bg) 100%)',
+}
+
+export const STATUS_LABELS: Record<string, string> = {
+  tasted: 'Tasted',
+  wishlist: 'Wishlist',
+  cellar: 'Cellar',
 }

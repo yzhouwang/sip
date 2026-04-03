@@ -1,16 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { motion } from 'framer-motion'
 import { db, DRINK_EMOJI, DRINK_LABELS, FLAVORS } from '../lib/db'
 import { deleteTasting } from '../lib/tastings'
 import { DRINK_COLORS, RATING_LABELS } from '../lib/theme'
-
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -12 },
-}
 
 export function TastingDetail() {
   const { id } = useParams()
@@ -53,14 +46,7 @@ export function TastingDetail() {
   }
 
   return (
-    <motion.div
-      className="pb-8"
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.2 }}
-    >
+    <div className="pb-8">
       {/* Hero */}
       <div className={`${colors.card} min-h-[280px] relative flex flex-col`}>
         {photoUrl ? (
@@ -199,6 +185,6 @@ export function TastingDetail() {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

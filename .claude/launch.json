@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Sip Frontend (Vite)",
+      "runtimeExecutable": "/Users/yuzhouwang/.bun/bin/bunx",
+      "runtimeArgs": ["vite", "--port", "5173"],
+      "port": 5173
+    }
+  ]
+}

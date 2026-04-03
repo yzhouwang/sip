@@ -1,5 +1,6 @@
 import type { Tasting, TastingDTO } from './db'
 import { getServerUrl, getApiKey, isSyncConfigured, setLastSyncAt } from './config'
+import { VALID_STATUSES } from '../../shared/constants'
 
 // --- DTO validation ---
 
@@ -8,6 +9,8 @@ const VALID_FLAVORS = new Set([
   'smoky', 'earthy', 'briny', 'sweet', 'floral', 'citrus', 'spicy',
   'fruity', 'rich', 'bitter', 'umami', 'herbal', 'nutty', 'oaky', 'crisp',
 ])
+
+const VALID_STATUS_SET = new Set(VALID_STATUSES)
 
 /** Validate a DTO from the server. Returns error string or null if valid. */
 export function validateDTO(dto: unknown): string | null {
@@ -20,6 +23,10 @@ export function validateDTO(dto: unknown): string | null {
   if (!Array.isArray(obj.flavors) || obj.flavors.length > 5 || !obj.flavors.every((f: unknown) => typeof f === 'string' && VALID_FLAVORS.has(f))) return 'Invalid flavors'
   if (typeof obj.notes !== 'string') return 'Invalid notes'
   if (typeof obj.location !== 'string') return 'Invalid location'
+  if (obj.status !== undefined && !VALID_STATUS_SET.has(obj.status as string)) return 'Invalid status'
+  if (obj.latitude !== undefined && typeof obj.latitude !== 'number') return 'Invalid latitude'
+  if (obj.longitude !== undefined && typeof obj.longitude !== 'number') return 'Invalid longitude'
+  if (obj.deletedAt !== undefined && obj.deletedAt !== null && (typeof obj.deletedAt !== 'string' || isNaN(Date.parse(obj.deletedAt)))) return 'Invalid deletedAt'
   if (typeof obj.createdAt !== 'string' || isNaN(Date.parse(obj.createdAt))) return 'Invalid createdAt'
   if (typeof obj.updatedAt !== 'string' || isNaN(Date.parse(obj.updatedAt))) return 'Invalid updatedAt'
   return null
@@ -37,6 +44,10 @@ export function toDTO(t: Tasting): Omit<TastingDTO, 'photoUrl' | 'thumbUrl'> {
     flavors: [...t.flavors],
     notes: t.notes,
     location: t.location,
+    status: t.status || 'tasted',
+    latitude: t.latitude,
+    longitude: t.longitude,
+    deletedAt: t.deletedAt?.toISOString(),
     createdAt: t.createdAt.toISOString(),
     updatedAt: t.updatedAt.toISOString(),
   }
@@ -52,9 +63,25 @@ export function fromDTO(dto: TastingDTO): Omit<Tasting, 'photo' | 'photoThumb'> 
     flavors: [...dto.flavors],
     notes: dto.notes,
     location: dto.location,
+    status: dto.status || 'tasted',
+    latitude: dto.latitude,
+    longitude: dto.longitude,
+    deletedAt: dto.deletedAt ? new Date(dto.deletedAt) : undefined,
     createdAt: new Date(dto.createdAt),
     updatedAt: new Date(dto.updatedAt),
   }
+}
+
+/** Detect conflict: both sides changed since last sync */
+export function hasConflict(
+  local: { updatedAt: Date; lastSyncedAt?: Date },
+  server: { updatedAt: string },
+): boolean {
+  const lastSync = local.lastSyncedAt?.getTime() ?? 0
+  const serverDate = parseISODate(server.updatedAt)
+  if (!serverDate) return false
+  // Both sides changed since last sync
+  return serverDate.getTime() > lastSync && local.updatedAt.getTime() > lastSync
 }
 
 /** Parse ISO date, return null if invalid */
@@ -114,6 +141,7 @@ export class SyncError extends Error {
 export async function pushTasting(
   tasting: Tasting,
   fetchFn: FetchFn = fetch,
+  skipPhoto?: boolean,
 ): Promise<void> {
   if (!isSyncConfigured()) return
 
@@ -129,8 +157,8 @@ export async function pushTasting(
   if (res.status === 401) throw new SyncError('Authentication failed', 401)
   if (!res.ok) throw new SyncError(`Push failed: ${res.status}`, res.status)
 
-  // Upload photo if exists (separate request)
-  if (tasting.photo && tasting.hasPhoto) {
+  // Upload photo if exists (separate request), skip if already synced (incremental)
+  if (tasting.photo && tasting.hasPhoto && !skipPhoto) {
     await pushPhoto(tasting.id, tasting.photo, tasting.photoThumb, fetchFn)
   }
 }

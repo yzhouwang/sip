@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'framer-motion'
-import { db, DRINK_TYPES, DRINK_LABELS, FLAVORS, type DrinkType, type FlavorId } from '../lib/db'
+import { db, DRINK_TYPES, DRINK_LABELS, FLAVORS, type DrinkType, type FlavorId, type TastingStatus } from '../lib/db'
 import { DRINK_COLORS, RATING_LABELS } from '../lib/theme'
 import { compressPhoto } from '../lib/photos'
 import { createTasting, updateTasting } from '../lib/tastings'
@@ -25,12 +25,6 @@ const FLAVOR_SELECTED_COLORS: Record<string, string> = {
   crisp: 'bg-sake text-white',
 }
 
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -12 },
-}
-
 export function NewTasting() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -51,6 +45,11 @@ export function NewTasting() {
   const [flavors, setFlavors] = useState<FlavorId[]>([])
   const [notes, setNotes] = useState('')
   const [location, setLocation] = useState('')
+  const [status, setStatus] = useState<TastingStatus>('tasted')
+  const [geoEnabled, setGeoEnabled] = useState(false)
+  const [latitude, setLatitude] = useState<number>()
+  const [longitude, setLongitude] = useState<number>()
+  const [geoLoading, setGeoLoading] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string>()
   const [photoBlob, setPhotoBlob] = useState<Blob>()
   const [thumbBlob, setThumbBlob] = useState<Blob>()
@@ -68,6 +67,9 @@ export function NewTasting() {
     setFlavors(existing.flavors)
     setNotes(existing.notes)
     setLocation(existing.location)
+    if (existing.status) setStatus(existing.status)
+    if (existing.latitude !== undefined) { setLatitude(existing.latitude); setGeoEnabled(true) }
+    if (existing.longitude !== undefined) setLongitude(existing.longitude)
     if (existing.photoThumb) {
       const url = URL.createObjectURL(existing.photoThumb)
       prevPhotoUrl.current = url
@@ -112,6 +114,30 @@ export function NewTasting() {
     }
   }
 
+  const handleGeoToggle = () => {
+    if (geoEnabled) {
+      setGeoEnabled(false)
+      setLatitude(undefined)
+      setLongitude(undefined)
+      return
+    }
+    setGeoEnabled(true)
+    setGeoLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitude(pos.coords.latitude)
+        setLongitude(pos.coords.longitude)
+        setGeoLoading(false)
+      },
+      (err) => {
+        console.warn('Geolocation denied:', err.message)
+        setGeoLoading(false)
+        // Still show toggle as on but without coordinates
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
   const handleSave = async () => {
     if (!name.trim() || !rating) return
     setSaving(true)
@@ -124,6 +150,9 @@ export function NewTasting() {
         flavors,
         notes: notes.trim(),
         location: location.trim(),
+        status,
+        latitude,
+        longitude,
         ...(photoBlob ? { photo: photoBlob, photoThumb: thumbBlob } : {}),
       }
       if (id && existing) {
@@ -162,14 +191,7 @@ export function NewTasting() {
   }
 
   return (
-    <motion.div
-      className="pb-8 px-5"
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.2 }}
-    >
+    <div className="pb-8 px-5">
       {/* Header */}
       <div className="pt-5 pb-4 flex justify-between items-center">
         <button
@@ -247,6 +269,23 @@ export function NewTasting() {
             </motion.button>
           )
         })}
+      </div>
+
+      {/* Status selector */}
+      <div className="flex gap-2.5 mt-5">
+        {(['tasted', 'wishlist', 'cellar'] as TastingStatus[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className={`px-5 py-2.5 rounded-[18px] text-[13px] font-bold border-none cursor-pointer transition-all ${
+              status === s
+                ? 'bg-text text-white scale-105'
+                : 'bg-bg-input text-text-muted'
+            }`}
+          >
+            {s === 'tasted' ? '✓ Tasted' : s === 'wishlist' ? '⭐ Wishlist' : '🔒 Cellar'}
+          </button>
+        ))}
       </div>
 
       {/* Name */}
@@ -335,7 +374,18 @@ export function NewTasting() {
           placeholder="Where are you?"
           className="w-full mt-2 px-5 py-3.5 bg-bg-input border-none rounded-[20px] text-sm font-semibold text-text placeholder:text-text-light outline-none font-sans"
         />
+        {/* Geolocation toggle */}
+        <button
+          onClick={handleGeoToggle}
+          className={`mt-2.5 flex items-center gap-2 px-4 py-2.5 rounded-[16px] text-[13px] font-bold border-none cursor-pointer transition-all ${
+            geoEnabled
+              ? 'bg-sake/15 text-sake'
+              : 'bg-bg-input text-text-muted'
+          }`}
+        >
+          📍 {geoLoading ? 'Getting location...' : geoEnabled ? (latitude ? `${latitude.toFixed(4)}, ${longitude?.toFixed(4)}` : 'Capture location') : 'Capture GPS'}
+        </button>
       </div>
-    </motion.div>
+    </div>
   )
 }

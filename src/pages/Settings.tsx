@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { db, DRINK_TYPES } from '../lib/db'
 import type { Tasting, DrinkType, FlavorId } from '../lib/db'
 import {
@@ -7,6 +6,8 @@ import {
   getApiKey, setApiKey as saveApiKey,
   getLastSyncAt, isSyncConfigured, clearSyncConfig,
   validateServerUrl,
+  getThemePreference, setThemePreference,
+  type ThemePreference,
 } from '../lib/config'
 import { testConnection, onSyncStatus, type SyncStatus } from '../lib/sync'
 import { pushAllToServer, pullFromServer } from '../lib/tastings'
@@ -15,12 +16,6 @@ const VALID_FLAVORS = new Set([
   'smoky', 'earthy', 'briny', 'sweet', 'floral', 'citrus', 'spicy',
   'fruity', 'rich', 'bitter', 'umami', 'herbal', 'nutty', 'oaky', 'crisp',
 ])
-
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -12 },
-}
 
 type ConnectionState = 'unconfigured' | 'configuring' | 'connected' | 'error'
 
@@ -94,6 +89,7 @@ export function Settings() {
   const [pushProgress, setPushProgress] = useState<{ done: number; total: number }>()
   const [pullProgress, setPullProgress] = useState<{ done: number; total: number }>()
   const [lastSync, setLastSync] = useState(getLastSyncAt())
+  const [theme, setTheme] = useState<ThemePreference>(getThemePreference())
 
   useEffect(() => {
     return onSyncStatus(setSyncStatus)
@@ -276,14 +272,7 @@ export function Settings() {
   const progress = pushProgress || pullProgress
 
   return (
-    <motion.div
-      className="pb-24"
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.2 }}
-    >
+    <div className="pb-24">
       {/* Progress overlay */}
       {progressOverlay && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
@@ -312,7 +301,7 @@ export function Settings() {
       {/* Gradient Header */}
       <div
         className="px-5 pt-8 pb-6"
-        style={{ background: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, #fefcf8 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, var(--color-bg) 100%)' }}
       >
         <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           Settings
@@ -325,6 +314,28 @@ export function Settings() {
       </div>
 
       <div className="px-5">
+      {/* Dark Mode */}
+      <div className="mt-8">
+        <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
+          Appearance
+        </h3>
+        <div className="flex gap-2">
+          {(['system', 'light', 'dark'] as ThemePreference[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTheme(t); setThemePreference(t) }}
+              className={`flex-1 py-3 rounded-2xl text-sm font-bold border-none cursor-pointer transition-all ${
+                theme === t
+                  ? 'bg-text text-bg-card scale-105'
+                  : 'bg-bg-input text-text-muted'
+              }`}
+            >
+              {t === 'system' ? '🖥 System' : t === 'light' ? '☀️ Light' : '🌙 Dark'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Cloud Sync Section */}
       <div className="mt-8">
         <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
@@ -497,12 +508,12 @@ export function Settings() {
       </div>
 
       <div className="mt-12 text-center text-xs text-text-light">
-        <p className="font-bold">Sip v1.2</p>
+        <p className="font-bold">Sip v1.3</p>
         <p className="mt-1">
           {isSyncConfigured() ? 'Cloud backup enabled' : 'Your data stays on this device'}
         </p>
       </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

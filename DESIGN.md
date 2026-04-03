@@ -26,7 +26,7 @@
 - **Accent:** #e65100 (warm whisky orange) — FAB, CTAs, gradient headers
 - **Background:** #fefcf8 (warm cream)
 - **Surface:** #ffffff (cards, inputs on white), #f4f0e8 (inputs on cream)
-- **Text:** #1a1a1a (primary), #999999 (muted), #888888 (light)
+- **Text:** #1a1a1a (primary), #6b6b6b (muted, WCAG AA), #757575 (light, WCAG AA)
 - **Border:** #e8e4dc
 - **Drink colors:**
   - Wine: #d81b60 / bg #ffe0ea
@@ -36,6 +36,22 @@
   - Cocktail: #5c6bc0 / bg #e0e4f8
   - Other: #66bb6a / bg #dcedc8
 - **Semantic:** success #2e7d32, warning #f57f17, error #c62828, info #1565c0
+
+### Dark Palette (Warm Charcoal)
+Applied via `[data-theme="dark"]` CSS custom property overrides. Default: "system" (respects OS).
+- **Background:** #1c1917 (warm near-black, like dark wood)
+- **Surface:** #292524 (cards), #1c1917 (inputs)
+- **Text:** #f5f0e8 (warm cream), #a8a29e (muted), #8a8178 (light, WCAG AA 4.6:1)
+- **Border:** #44403c
+- **Drink backgrounds (deep/muted):**
+  - Wine: #3a1525
+  - Whisky: #3a2010
+  - Beer: #3a3010
+  - Sake: #0c3a3f
+  - Cocktail: #1a1e3a
+  - Other: #1a3a1c
+- **Drink accent colors:** Unchanged (pop well against dark backgrounds)
+- **Header gradients:** Endpoint auto-resolves via `var(--color-bg)` — no separate dark values needed
 
 ## Spacing
 - **Base unit:** 8px
@@ -57,6 +73,32 @@
 - **Max content width:** 430px
 - **Border radius:** sm:12px (buttons), md:20px (inputs), lg:24px (cards), xl:28px (hero cards), full:9999px (pills, badges)
 
+## Spinner
+- 24px diameter ring, 3px stroke
+- Color: `conic-gradient` using active page's gradient start color
+- Map: teal (#00acc1), Collection: amber (#e65100), DNA: wine (#d81b60)
+- Animation: `spin 0.8s linear infinite`
+- Centered in container with subtle opacity pulse
+
+## Conflict Banner
+- Position: Top of Collection page, below header
+- Background: `rgba(245, 127, 23, 0.12)` (amber), dark mode: `rgba(245, 127, 23, 0.2)`
+- Border-radius: 20px, padding 12px 16px
+- Left: warning emoji. Center: "N conflicts found" 13px bold. Right: "Review" pill button
+
+## Card Overlay Badges
+- Position: Top-right corner, -4px offset
+- Shape: 24px circle, drink-color background, white icon
+- Wishlist: Star (filled). Cellar: Lock (filled)
+- Shadow: 0 2px 6px rgba(0,0,0,0.2)
+- No badge for status='tasted' (default)
+
+## Status Filter Tabs
+- Segmented control inside gradient header
+- Background: white/15 + backdrop-blur
+- Active: white bg, text color, shadow. Inactive: transparent, white/80 text.
+- Three tabs: Tasted / Wishlist / Cellar
+
 ## Header Gradient
 - **Default (All filter):** linear-gradient(135deg, #e65100 0%, #ff8f00 40%, var(--bg) 100%)
 - **Wine selected:** linear-gradient(135deg, #d81b60 0%, #e91e63 40%, var(--bg) 100%)
@@ -65,11 +107,17 @@
 - **Sake selected:** linear-gradient(135deg, #00838f 0%, #00acc1 40%, var(--bg) 100%)
 - **Cocktail selected:** linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, var(--bg) 100%)
 - **Other selected:** linear-gradient(135deg, #388e3c 0%, #66bb6a 40%, var(--bg) 100%)
+- **Map page:** linear-gradient(135deg, #00695c 0%, #00acc1 40%, var(--bg) 100%)
 - Title "Sip." renders white on gradient, text-shadow: 0 2px 8px rgba(0,0,0,0.15)
 - Count badge: rgba(255,255,255,0.2) backdrop-blur background
 
 ## Empty State
-- Japanese watermark character 酒 (sake/alcohol) at 160px, 4% opacity, centered behind content
+- Japanese watermark characters at 160px, 4% opacity, centered behind content:
+  - Collection (Tasted): 酒 (sake/alcohol)
+  - Collection (Wishlist): 星 (star/wish)
+  - Collection (Cellar): 蔵 (storehouse/cellar)
+  - Taste DNA: 味 (flavor)
+  - Map: 地 (earth/land)
 - Warm gradient circle behind emoji (not flat void)
 - CTA button uses gradient accent (not black): linear-gradient(135deg, #e65100, #ff8f00)
 - Button shadow: 0 6px 24px rgba(230,81,0,0.35)
@@ -92,6 +140,7 @@
 - **Icons:** SVG stroke icons (not Unicode glyphs)
   - Collection: 4-square grid
   - DNA: Star/diamond
+  - Map: Pin/marker (teardrop + circle cutout)
   - Settings: Gear
 - **Touch targets:** 48px minimum
 - **Active indicator:** 24px × 2px bar above active tab
@@ -120,3 +169,10 @@
 | 2026-04-03 | 味 watermark in DNA empty state | "Flavor" kanji mirrors 酒 watermark in Collection empty state |
 | 2026-04-03 | Status badges in all headers | Backdrop-blur pills showing page-relevant stats (tasting count, sync status) |
 | 2026-04-04 | Crowdedness polish pass | Increased section spacing on New Tasting (mt-5→mt-7), Settings (taller header, wider section gaps), Collection (compacted filter pills, rebalanced CTA button proportions) |
+| 2026-04-04 | Dark palette: warm charcoal | bg:#1c1917, cards:#292524, text:#f5f0e8. Preserves izakaya warmth in low light. |
+| 2026-04-04 | Color contrast WCAG AA fix | text-muted #999→#6b6b6b (5.1:1), text-light #888→#757575 (4.6:1) |
+| 2026-04-04 | Map page with teal gradient | 4th nav tab, Leaflet.js lazy-loaded, drink-colored pins |
+| 2026-04-04 | Cellar/Wishlist status tabs | Segmented control inside gradient header. Kanji watermarks for empty states. |
+| 2026-04-04 | Card overlay badges | Wishlist star / Cellar lock, 24px circle on card corner |
+| 2026-04-04 | Gradient ring spinner | 24px, CSS-only, page-aware colors for lazy-load fallback |
+| 2026-04-04 | Dark mode default: system | Respects OS prefers-color-scheme out of the box |

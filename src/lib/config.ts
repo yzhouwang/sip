@@ -2,7 +2,10 @@ const STORAGE_KEYS = {
   serverUrl: 'sip_server_url',
   apiKey: 'sip_api_key',
   lastSyncAt: 'sip_last_sync_at',
+  theme: 'sip_theme',
 } as const
+
+export type ThemePreference = 'system' | 'light' | 'dark'
 
 export function getServerUrl(): string | null {
   return localStorage.getItem(STORAGE_KEYS.serverUrl) || null
@@ -38,9 +41,38 @@ export function clearSyncConfig(): void {
   localStorage.removeItem(STORAGE_KEYS.lastSyncAt)
 }
 
+export function getThemePreference(): ThemePreference {
+  return (localStorage.getItem(STORAGE_KEYS.theme) as ThemePreference) || 'system'
+}
+
+export function setThemePreference(theme: ThemePreference): void {
+  localStorage.setItem(STORAGE_KEYS.theme, theme)
+  applyTheme(theme)
+}
+
+/** Apply theme to document. Call on init and on change. */
+export function applyTheme(pref?: ThemePreference): void {
+  const theme = pref || getThemePreference()
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+}
+
+/** Listen for OS-level theme changes when preference is 'system' */
+export function initThemeListener(): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)')
+  const handler = () => {
+    if (getThemePreference() === 'system') applyTheme('system')
+  }
+  mq.addEventListener('change', handler)
+  applyTheme()
+  return () => mq.removeEventListener('change', handler)
+}
+
 /** Check if hostname is a private/RFC-1918 IP address */
 function isPrivateIP(hostname: string): boolean {
-  // 10.x.x.x, 172.16-31.x.x, 192.168.x.x, 169.254.x.x (link-local)
   return /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.)/.test(hostname)
 }
 
@@ -50,11 +82,11 @@ export function validateServerUrl(url: string): string | null {
   try {
     const parsed = new URL(url)
     const isLocal = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1'
-    if (parsed.protocol !== 'https:' && !isLocal) {
+    if (parsed.protocol === 'http:' && !isLocal) {
+      if (isPrivateIP(parsed.hostname)) {
+        return 'HTTPS required for private network addresses'
+      }
       return 'HTTPS required (except localhost)'
-    }
-    if (parsed.protocol === 'http:' && !isLocal && isPrivateIP(parsed.hostname)) {
-      return 'HTTPS required for private network addresses'
     }
     return null
   } catch {

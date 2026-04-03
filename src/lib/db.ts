@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie'
 
 export type DrinkType = 'wine' | 'whisky' | 'beer' | 'sake' | 'cocktail' | 'other'
+export type TastingStatus = 'tasted' | 'wishlist' | 'cellar'
 
 export const DRINK_TYPES: DrinkType[] = ['wine', 'whisky', 'beer', 'sake', 'cocktail', 'other']
 
@@ -53,6 +54,12 @@ export interface Tasting {
   flavors: FlavorId[]
   notes: string
   location: string
+  status: TastingStatus
+  latitude?: number
+  longitude?: number
+  deletedAt?: Date
+  lastSyncedAt?: Date
+  photoSyncedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -69,6 +76,10 @@ export interface TastingDTO {
   flavors: FlavorId[]
   notes: string
   location: string
+  status: TastingStatus
+  latitude?: number
+  longitude?: number
+  deletedAt?: string
   createdAt: string
   updatedAt: string
 }
@@ -92,5 +103,28 @@ db.version(2).stores({
     }
   })
 })
+
+// v3: Phase 2 fields — status, coordinates, tombstone, sync tracking
+db.version(3).stores({
+  tastings: 'id, drinkType, name, rating, createdAt, updatedAt, status, deletedAt',
+}).upgrade((tx) => {
+  return tx.table('tastings').toCollection().modify((tasting) => {
+    if (tasting.status === undefined) tasting.status = 'tasted'
+    if (tasting.lastSyncedAt === undefined) tasting.lastSyncedAt = tasting.updatedAt
+  })
+})
+
+/** Purge tombstones older than N days */
+export async function purgeTombstones(retentionDays = 30): Promise<number> {
+  const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000)
+  const toDelete = await db.tastings
+    .where('deletedAt')
+    .below(cutoff)
+    .toArray()
+  const tombstoned = toDelete.filter((t) => t.deletedAt)
+  if (tombstoned.length === 0) return 0
+  await db.tastings.bulkDelete(tombstoned.map((t) => t.id))
+  return tombstoned.length
+}
 
 export { db }

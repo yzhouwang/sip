@@ -8,8 +8,8 @@
   --color-bg-card: #ffffff;
   --color-bg-input: #f4f0e8;
   --color-text: #1a1a1a;
-  --color-text-muted: #999999;
-  --color-text-light: #888888;
+  --color-text-muted: #6b6b6b;
+  --color-text-light: #757575;
   --color-border: #e8e4dc;
 
   --color-wine: #d81b60;
@@ -51,6 +51,38 @@ body {
 @keyframes fab-pulse {
   0%, 100% { box-shadow: 0 6px 24px rgba(230, 81, 0, 0.4); }
   50% { box-shadow: 0 6px 32px rgba(230, 81, 0, 0.6); }
+}
+
+/* Dark mode — warm charcoal (Izakaya in low light) */
+[data-theme="dark"] {
+  --color-bg: #1c1917;
+  --color-bg-card: #292524;
+  --color-bg-input: #1c1917;
+  --color-text: #f5f0e8;
+  --color-text-muted: #a8a29e;
+  --color-text-light: #8a8178;
+  --color-border: #44403c;
+
+  --color-wine-bg: #3a1525;
+  --color-whisky-bg: #3a2010;
+  --color-beer-bg: #3a3010;
+  --color-sake-bg: #0c3a3f;
+  --color-cocktail-bg: #1a1e3a;
+  --color-other-bg: #1a3a1c;
+}
+
+/* Spinner — gradient ring, page-aware color via CSS custom property */
+.sip-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid transparent;
+  border-top-color: var(--spinner-color, #e65100);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Hide scrollbar on filter pills */

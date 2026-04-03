@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion, AnimatePresence } from 'framer-motion'
-import { db, DRINK_TYPES, DRINK_LABELS, DRINK_EMOJI, type DrinkType } from '../lib/db'
+import { db, DRINK_TYPES, DRINK_LABELS, DRINK_EMOJI, type DrinkType, type TastingStatus } from '../lib/db'
 import { DrinkCard } from '../components/DrinkCard'
 import { HEADER_GRADIENTS } from '../lib/theme'
 
@@ -14,15 +14,16 @@ function SkeletonCard({ wide }: { wide?: boolean }) {
   )
 }
 
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -12 },
-}
+const STATUS_TABS: { key: TastingStatus; label: string }[] = [
+  { key: 'tasted', label: 'Tasted' },
+  { key: 'wishlist', label: 'Wishlist' },
+  { key: 'cellar', label: 'Cellar' },
+]
 
 export function Collection() {
   const navigate = useNavigate()
   const [filter, setFilter] = useState<DrinkType | 'all'>('all')
+  const [statusTab, setStatusTab] = useState<TastingStatus>('tasted')
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [sort, setSort] = useState<'date' | 'rating'>('date')
@@ -33,6 +34,10 @@ export function Collection() {
       collection = collection.reverse()
     }
     let results = await collection.toArray()
+    // Filter out tombstoned records
+    results = results.filter((t) => !t.deletedAt)
+    // Filter by status tab
+    results = results.filter((t) => (t.status || 'tasted') === statusTab)
     if (filter !== 'all') {
       results = results.filter((t) => t.drinkType === filter)
     }
@@ -43,7 +48,7 @@ export function Collection() {
       )
     }
     return results
-  }, [filter, search, sort])
+  }, [filter, search, sort, statusTab])
 
   const isLoading = tastings === undefined
   const count = tastings?.length ?? 0
@@ -62,18 +67,28 @@ export function Collection() {
     })
   }
 
+  // Kanji watermarks per status tab
+  const emptyKanji: Record<TastingStatus, string> = {
+    tasted: '酒',
+    wishlist: '星',
+    cellar: '蔵',
+  }
+  const emptyEmoji: Record<TastingStatus, string> = {
+    tasted: '🥂',
+    wishlist: '⭐',
+    cellar: '🔒',
+  }
+  const emptyMessage: Record<TastingStatus, { title: string; subtitle: string }> = {
+    tasted: { title: 'Log your first sip', subtitle: 'Every great bottle\ndeserves a story.' },
+    wishlist: { title: 'Build your wishlist', subtitle: 'Save drinks you\nwant to try next.' },
+    cellar: { title: 'Start your cellar', subtitle: 'Track bottles you\nare saving for later.' },
+  }
+
   return (
-    <motion.div
-      className="pb-24"
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.2 }}
-    >
-      {/* Gradient Header — extends to cover title + count */}
+    <div className="pb-24">
+      {/* Gradient Header — extends to cover title + count + status tabs */}
       <div
-        className="px-5 pt-6 pb-5 transition-all duration-500"
+        className="px-5 pt-6 pb-3 transition-all duration-500"
         style={{ background: HEADER_GRADIENTS[filter] }}
       >
         <div className="flex items-end justify-between">
@@ -105,6 +120,23 @@ export function Collection() {
           <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white">
             🍶 {isLoading ? '...' : `${count} tasting${count !== 1 ? 's' : ''}`}
           </div>
+        </div>
+
+        {/* Status tabs — segmented control inside gradient */}
+        <div className="mt-4 flex bg-white/15 backdrop-blur-sm rounded-xl p-1">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setStatusTab(tab.key)}
+              className={`flex-1 py-2 rounded-lg text-[12px] font-bold border-none cursor-pointer transition-all ${
+                statusTab === tab.key
+                  ? 'bg-white text-text shadow-sm'
+                  : 'bg-transparent text-white/80'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -141,8 +173,8 @@ export function Collection() {
             style={{
               padding: '8px 16px',
               borderRadius: 9999,
-              background: filter === 'all' ? '#1a1a1a' : '#ffffff',
-              color: filter === 'all' ? '#ffffff' : '#999999',
+              background: filter === 'all' ? 'var(--color-text)' : 'var(--color-bg-card)',
+              color: filter === 'all' ? 'var(--color-bg)' : 'var(--color-text-muted)',
               transform: filter === 'all' ? 'scale(1.05)' : 'scale(1)',
             }}
           >
@@ -171,7 +203,7 @@ export function Collection() {
         {/* Fade hint */}
         <div
           className="absolute right-0 top-0 bottom-1 pointer-events-none"
-          style={{ width: 48, background: 'linear-gradient(to left, #fefcf8, transparent)' }}
+          style={{ width: 48, background: `linear-gradient(to left, var(--color-bg), transparent)` }}
         />
       </div>
 
@@ -188,18 +220,18 @@ export function Collection() {
         /* Empty state with Japanese watermark */
         <div className="mt-16 text-center relative px-5">
           <div className="font-display text-[160px] font-black text-whisky opacity-[0.04] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none leading-none">
-            酒
+            {emptyKanji[statusTab]}
           </div>
           <div className="relative z-10">
             <div className="w-36 h-36 rounded-full bg-gradient-radial from-whisky-bg to-transparent mx-auto flex items-center justify-center"
-              style={{ background: 'radial-gradient(circle, #ffe0b2 0%, transparent 70%)' }}>
-              <span className="text-6xl">🥂</span>
+              style={{ background: 'radial-gradient(circle, var(--color-whisky-bg) 0%, transparent 70%)' }}>
+              <span className="text-6xl">{emptyEmoji[statusTab]}</span>
             </div>
             <div className="text-lg font-black font-display tracking-tight text-text mt-4">
-              Log your first sip
+              {emptyMessage[statusTab].title}
             </div>
-            <div className="text-[13px] text-text-muted mt-1.5 leading-relaxed">
-              Every great bottle<br/>deserves a story.
+            <div className="text-[13px] text-text-muted mt-1.5 leading-relaxed whitespace-pre-line">
+              {emptyMessage[statusTab].subtitle}
             </div>
             <button
               onClick={() => navigate('/new')}
@@ -280,6 +312,6 @@ export function Collection() {
       >
         🍶
       </motion.button>
-    </motion.div>
+    </div>
   )
 }

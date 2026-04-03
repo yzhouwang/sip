@@ -118,7 +118,7 @@ describe('tastings service', () => {
   })
 
   describe('deleteTasting', () => {
-    it('removes tasting from Dexie', async () => {
+    it('soft-deletes tasting (sets deletedAt instead of removing)', async () => {
       const id = await createTasting({
         drinkType: 'wine',
         name: 'To Delete',
@@ -130,7 +130,11 @@ describe('tastings service', () => {
 
       expect(await db.tastings.get(id)).toBeDefined()
       await deleteTasting(id)
-      expect(await db.tastings.get(id)).toBeUndefined()
+      // Soft delete: record still exists but has deletedAt set
+      const deleted = await db.tastings.get(id)
+      expect(deleted).toBeDefined()
+      expect(deleted!.deletedAt).toBeDefined()
+      expect(deleted!.deletedAt).toBeInstanceOf(Date)
     })
   })
 })

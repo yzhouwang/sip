@@ -1,13 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { motion } from 'framer-motion'
 import { db, FLAVORS, DRINK_TYPES, DRINK_LABELS } from '../lib/db'
 import { FLAVOR_COLORS, DRINK_HEX } from '../lib/theme'
-
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -12 },
-}
 
 function RadarChart({ data }: { data: { label: string; emoji: string; value: number }[] }) {
   if (data.length < 3) return null
@@ -55,7 +48,7 @@ function RadarChart({ data }: { data: { label: string; emoji: string; value: num
           key={l}
           points={ringPoints(l)}
           fill="none"
-          stroke="#e8e4dc"
+          stroke="var(--color-border)"
           strokeWidth="1.5"
         />
       ))}
@@ -75,7 +68,7 @@ function RadarChart({ data }: { data: { label: string; emoji: string; value: num
         const lp = getPoint(i, 1.18)
         return (
           <g key={d.label}>
-            <circle cx={p.x} cy={p.y} r="5" fill="#d81b60" stroke="#fefcf8" strokeWidth="2" />
+            <circle cx={p.x} cy={p.y} r="5" fill="#d81b60" stroke="var(--color-bg)" strokeWidth="2" />
             <text
               x={lp.x}
               y={lp.y}
@@ -94,7 +87,11 @@ function RadarChart({ data }: { data: { label: string; emoji: string; value: num
 }
 
 export function TasteDNA() {
-  const tastings = useLiveQuery(() => db.tastings.toArray())
+  const tastings = useLiveQuery(async () => {
+    const all = await db.tastings.toArray()
+    // Only count 'tasted' entries in DNA (exclude wishlist, cellar, tombstoned)
+    return all.filter((t) => !t.deletedAt && (t.status || 'tasted') === 'tasted')
+  })
 
   if (!tastings) return null
 
@@ -133,18 +130,11 @@ export function TasteDNA() {
     .sort((a, b) => b.count - a.count)
 
   return (
-    <motion.div
-      className="pb-24"
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.2 }}
-    >
+    <div className="pb-24">
       {/* Gradient Header */}
       <div
         className="px-5 pt-6 pb-5"
-        style={{ background: 'linear-gradient(135deg, #d81b60 0%, #e65100 30%, #ff8f00 60%, #fefcf8 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #d81b60 0%, #e65100 30%, #ff8f00 60%, var(--color-bg) 100%)' }}
       >
         <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           Taste DNA
@@ -236,6 +226,6 @@ export function TasteDNA() {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
