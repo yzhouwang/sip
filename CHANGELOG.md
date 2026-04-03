@@ -2,6 +2,13 @@
 
 All notable changes to Sip will be documented in this file.
 
+## [1.2.0.1] - 2026-04-04
+
+### Changed
+- New Tasting page: increased section spacing, corrected side margins to 20px (DESIGN.md spec), reduced photo area height, wider gaps between form sections
+- Settings page: taller gradient header, more space between Cloud Backup and Local Backup sections
+- Collection page: resized CTA button (larger padding, smaller text), compacted filter pills, scaled down empty state text hierarchy
+
 ## [1.2.0.0] - 2026-04-03
 
 ### Changed
