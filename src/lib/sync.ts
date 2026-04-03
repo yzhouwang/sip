@@ -1,6 +1,30 @@
 import type { Tasting, TastingDTO } from './db'
 import { getServerUrl, getApiKey, isSyncConfigured, setLastSyncAt } from './config'
 
+// --- DTO validation ---
+
+const VALID_DRINK_TYPES = new Set(['wine', 'whisky', 'beer', 'sake', 'cocktail', 'other'])
+const VALID_FLAVORS = new Set([
+  'smoky', 'earthy', 'briny', 'sweet', 'floral', 'citrus', 'spicy',
+  'fruity', 'rich', 'bitter', 'umami', 'herbal', 'nutty', 'oaky', 'crisp',
+])
+
+/** Validate a DTO from the server. Returns error string or null if valid. */
+export function validateDTO(dto: unknown): string | null {
+  if (!dto || typeof dto !== 'object') return 'Invalid tasting object'
+  const obj = dto as Record<string, unknown>
+  if (typeof obj.id !== 'string' || !obj.id) return 'Missing or invalid id'
+  if (typeof obj.name !== 'string' || !obj.name) return 'Missing or invalid name'
+  if (typeof obj.rating !== 'number' || obj.rating < 1 || obj.rating > 5 || !Number.isInteger(obj.rating)) return 'Rating must be integer 1-5'
+  if (typeof obj.drinkType !== 'string' || !VALID_DRINK_TYPES.has(obj.drinkType)) return 'Invalid drinkType'
+  if (!Array.isArray(obj.flavors) || obj.flavors.length > 5 || !obj.flavors.every((f: unknown) => typeof f === 'string' && VALID_FLAVORS.has(f))) return 'Invalid flavors'
+  if (typeof obj.notes !== 'string') return 'Invalid notes'
+  if (typeof obj.location !== 'string') return 'Invalid location'
+  if (typeof obj.createdAt !== 'string' || isNaN(Date.parse(obj.createdAt))) return 'Invalid createdAt'
+  if (typeof obj.updatedAt !== 'string' || isNaN(Date.parse(obj.updatedAt))) return 'Invalid updatedAt'
+  return null
+}
+
 // --- Pure serialization layer (no I/O) ---
 
 export function toDTO(t: Tasting): Omit<TastingDTO, 'photoUrl' | 'thumbUrl'> {
@@ -50,6 +74,21 @@ export function shouldPull(local: { updatedAt: Date }, server: { updatedAt: stri
 
 type FetchFn = typeof fetch
 
+/** Wrap a fetch call with an AbortController timeout */
+function fetchWithTimeout(
+  url: string,
+  opts: RequestInit,
+  timeoutMs: number,
+  fetchFn: FetchFn = fetch,
+): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  return fetchFn(url, { ...opts, signal: controller.signal }).finally(() => clearTimeout(timer))
+}
+
+const DATA_TIMEOUT = 30_000   // 30s for JSON requests
+const PHOTO_TIMEOUT = 60_000  // 60s for photo uploads/downloads
+
 function makeHeaders(): Record<string, string> {
   const key = getApiKey()
   return {
@@ -81,11 +120,11 @@ export async function pushTasting(
   const url = `${baseUrl()}/api/tastings/${tasting.id}`
   const dto = toDTO(tasting)
 
-  const res = await fetchFn(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'PUT',
     headers: makeHeaders(),
     body: JSON.stringify(dto),
-  })
+  }, DATA_TIMEOUT, fetchFn)
 
   if (res.status === 401) throw new SyncError('Authentication failed', 401)
   if (!res.ok) throw new SyncError(`Push failed: ${res.status}`, res.status)
@@ -109,11 +148,11 @@ async function pushPhoto(
   if (thumb) form.append('thumb', thumb, 'thumb.jpg')
 
   const key = getApiKey()
-  const res = await fetchFn(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}` },
     body: form,
-  })
+  }, PHOTO_TIMEOUT, fetchFn)
 
   if (!res.ok) throw new SyncError(`Photo upload failed: ${res.status}`, res.status)
 }
@@ -126,10 +165,10 @@ export async function deleteTastingFromServer(
   if (!isSyncConfigured()) return
 
   const url = `${baseUrl()}/api/tastings/${id}`
-  const res = await fetchFn(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'DELETE',
     headers: makeHeaders(),
-  })
+  }, DATA_TIMEOUT, fetchFn)
 
   // 404 is fine — already deleted on server
   if (res.status === 404) return
@@ -144,16 +183,29 @@ export async function pullAll(
   if (!isSyncConfigured()) return []
 
   const url = `${baseUrl()}/api/tastings`
-  const res = await fetchFn(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'GET',
     headers: makeHeaders(),
-  })
+  }, DATA_TIMEOUT, fetchFn)
 
   if (res.status === 401) throw new SyncError('Authentication failed', 401)
   if (!res.ok) throw new SyncError(`Pull failed: ${res.status}`, res.status)
 
   const data = await res.json()
-  return data.tastings as TastingDTO[]
+  const raw = data.tastings
+  if (!Array.isArray(raw)) throw new SyncError('Invalid server response: tastings is not an array')
+
+  // Validate each DTO before trusting it
+  const valid: TastingDTO[] = []
+  for (const dto of raw) {
+    const err = validateDTO(dto)
+    if (err) {
+      console.warn(`Skipping invalid tasting from server (${dto?.id ?? 'unknown'}): ${err}`)
+      continue
+    }
+    valid.push(dto as TastingDTO)
+  }
+  return valid
 }
 
 /** Download a photo by URL and return as Blob */
@@ -163,9 +215,9 @@ export async function downloadPhoto(
 ): Promise<Blob> {
   const url = `${baseUrl()}${photoPath}`
   const key = getApiKey()
-  const res = await fetchFn(url, {
+  const res = await fetchWithTimeout(url, {
     headers: { 'Authorization': `Bearer ${key}` },
-  })
+  }, PHOTO_TIMEOUT, fetchFn)
 
   if (!res.ok) throw new SyncError(`Photo download failed: ${res.status}`, res.status)
   return res.blob()
@@ -179,15 +231,18 @@ export async function testConnection(
 
   try {
     const url = `${baseUrl()}/api/tastings`
-    const res = await fetchFn(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'GET',
       headers: makeHeaders(),
-    })
+    }, DATA_TIMEOUT, fetchFn)
 
     if (res.status === 401) return { ok: false, error: 'Invalid API key' }
     if (!res.ok) return { ok: false, error: `Server error: ${res.status}` }
     return { ok: true }
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return { ok: false, error: 'Connection timed out (30s)' }
+    }
     return { ok: false, error: err instanceof Error ? err.message : 'Connection failed' }
   }
 }
@@ -241,20 +296,36 @@ export async function flushPending(): Promise<void> {
   pendingIds.clear()
 
   setStatus('syncing')
+  const failedIds: string[] = []
   try {
     const { db } = await import('./db')  // lazy to break circular dep at module init
     for (const id of ids) {
       const tasting = await db.tastings.get(id)
       if (tasting) {
-        await pushTasting(tasting)
+        try {
+          await pushTasting(tasting)
+        } catch (err) {
+          console.error(`Sync failed for ${id}:`, err)
+          failedIds.push(id)
+        }
       }
     }
-    setLastSyncAt(new Date().toISOString())
-    setStatus('success')
+    if (failedIds.length > 0) {
+      // Re-add failed IDs so they'll be retried on next flush
+      for (const id of failedIds) pendingIds.add(id)
+    }
+    if (failedIds.length < ids.length) {
+      setLastSyncAt(new Date().toISOString())
+    }
+    setStatus(failedIds.length > 0 ? 'error' : 'success')
     // Reset to idle after 3s
-    setTimeout(() => { if (currentStatus === 'success') setStatus('idle') }, 3000)
+    if (failedIds.length === 0) {
+      setTimeout(() => { if (currentStatus === 'success') setStatus('idle') }, 3000)
+    }
   } catch (err) {
     console.error('Sync failed:', err)
+    // Re-add all IDs on catastrophic failure
+    for (const id of ids) pendingIds.add(id)
     setStatus('error')
   }
 }
