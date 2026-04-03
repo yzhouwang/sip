@@ -131,6 +131,7 @@ export function NewTasting() {
       } else {
         await createTasting(input)
       }
+      setSaving(false)
       navigate(-1)
     } catch (err) {
       console.error('Save failed:', err)

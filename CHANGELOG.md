@@ -2,6 +2,18 @@
 
 All notable changes to Sip will be documented in this file.
 
+## [1.2.0.2] - 2026-04-04
+
+### Fixed
+- Sync: validate all server DTOs before writing to IndexedDB (prevents corrupt data from untrusted server)
+- Sync: add 30s/60s fetch timeouts via AbortController (prevents hung requests)
+- Sync: retry individual failed pushes on next flush instead of dropping them
+- Config: block HTTP connections to private/RFC-1918 IP addresses (SSRF prevention)
+- Settings: whitelist image MIME types in base64ToBlob (only jpeg/png/webp)
+- Settings: reset file input on import validation failure (allows re-selecting same file)
+- Settings: guard push/pull with isSyncConfigured() for multi-tab safety
+- NewTasting: reset saving state before navigating on successful save
+
 ## [1.2.0.1] - 2026-04-04
 
 ### Changed
