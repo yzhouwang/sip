@@ -305,7 +305,7 @@ export function Settings() {
         </h1>
         <div className="mt-4">
           <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white">
-            ⚙️ {isSyncConfigured() ? 'Cloud backup enabled' : 'Local only'}
+            ⚙️ {connState === 'connected' ? 'Cloud backup enabled' : 'Local only'}
           </div>
         </div>
       </div>
