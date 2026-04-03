@@ -137,9 +137,9 @@ export function Collection() {
         >
           <button
             onClick={() => setFilter('all')}
-            className={`whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-sm font-bold`}
+            className={`whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-[13px] font-bold`}
             style={{
-              padding: '10px 20px',
+              padding: '8px 16px',
               borderRadius: 9999,
               background: filter === 'all' ? '#1a1a1a' : '#ffffff',
               color: filter === 'all' ? '#ffffff' : '#999999',
@@ -154,9 +154,9 @@ export function Collection() {
               <button
                 key={type}
                 onClick={() => setFilter(filter === type ? 'all' : type)}
-                className="whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-sm font-bold"
+                className="whitespace-nowrap border-none cursor-pointer transition-all flex-shrink-0 text-[13px] font-bold"
                 style={{
-                  padding: '10px 20px',
+                  padding: '8px 16px',
                   borderRadius: 9999,
                   background: selected ? `var(--color-${type})` : `var(--color-${type}-bg)`,
                   color: selected ? '#ffffff' : `var(--color-${type})`,
@@ -195,23 +195,24 @@ export function Collection() {
               style={{ background: 'radial-gradient(circle, #ffe0b2 0%, transparent 70%)' }}>
               <span className="text-6xl">🥂</span>
             </div>
-            <div className="text-2xl font-black font-display tracking-tight text-text mt-4">
+            <div className="text-lg font-black font-display tracking-tight text-text mt-4">
               Log your first sip
             </div>
-            <div className="text-sm text-text-muted mt-2 leading-relaxed">
+            <div className="text-[13px] text-text-muted mt-1.5 leading-relaxed">
               Every great bottle<br/>deserves a story.
             </div>
             <button
               onClick={() => navigate('/new')}
-              className="mt-6 px-8 py-3.5 text-white rounded-[20px] text-base font-bold border-none cursor-pointer"
+              className="mt-5 text-white rounded-[22px] text-sm font-bold border-none cursor-pointer"
               style={{
+                padding: '14px 36px',
                 background: 'linear-gradient(135deg, #e65100, #ff8f00)',
                 boxShadow: '0 6px 24px rgba(230, 81, 0, 0.35)',
               }}
             >
               + Add Tasting
             </button>
-            <div className="text-xs text-text-light mt-3">Takes about 30 seconds</div>
+            <div className="text-[11px] text-text-light mt-4">Takes about 30 seconds</div>
           </div>
         </div>
       ) : count === 0 && hasFilters ? (
