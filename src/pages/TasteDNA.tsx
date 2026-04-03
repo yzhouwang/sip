@@ -134,30 +134,48 @@ export function TasteDNA() {
 
   return (
     <motion.div
-      className="pb-24 px-5"
+      className="pb-24"
       variants={pageVariants}
       initial="initial"
       animate="animate"
       exit="exit"
       transition={{ duration: 0.2 }}
     >
-      <div className="pt-5">
-        <h2 className="text-4xl font-black tracking-tighter font-display">Taste DNA</h2>
-        <p className="text-sm text-text-muted mt-1.5">
-          {total} tasting{total !== 1 ? 's' : ''} · {categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}
-        </p>
+      {/* Gradient Header */}
+      <div
+        className="px-5 pt-6 pb-5"
+        style={{ background: 'linear-gradient(135deg, #d81b60 0%, #e65100 30%, #ff8f00 60%, #fefcf8 100%)' }}
+      >
+        <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+          Taste DNA
+        </h1>
+        <div className="mt-4">
+          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white">
+            🧬 {total} tasting{total !== 1 ? 's' : ''} · {categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}
+          </div>
+        </div>
       </div>
 
       {total < 5 ? (
-        <div className="mt-20 text-center">
-          <div className="text-6xl mb-4">🧬</div>
-          <div className="text-xl font-bold text-text">Not enough data yet</div>
-          <div className="text-sm text-text-muted mt-2">
-            Add 5+ tastings to see your Taste DNA
+        <div className="mt-16 text-center relative px-5">
+          <div className="font-display text-[160px] font-black text-whisky opacity-[0.04] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none leading-none">
+            味
+          </div>
+          <div className="relative z-10">
+            <div className="w-36 h-36 rounded-full mx-auto flex items-center justify-center"
+              style={{ background: 'radial-gradient(circle, #e0e4f8 0%, transparent 70%)' }}>
+              <span className="text-6xl">🧬</span>
+            </div>
+            <div className="text-2xl font-black font-display tracking-tight text-text mt-4">
+              Build your palate
+            </div>
+            <div className="text-sm text-text-muted mt-2 leading-relaxed">
+              Log 5+ tastings to unlock<br/>your flavor fingerprint.
+            </div>
           </div>
         </div>
       ) : (
-        <>
+        <div className="px-5">
           {/* Radar chart */}
           <RadarChart
             data={top6.map((f) => ({
@@ -200,18 +218,23 @@ export function TasteDNA() {
             <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
               By Category
             </h3>
-            {categories.map((c) => (
-              <div key={c.type} className="flex items-center gap-3.5 mb-3">
+            <div className="bg-bg-card rounded-3xl overflow-hidden">
+              {categories.map((c, i) => (
                 <div
-                  className="w-4 h-4 rounded-md"
-                  style={{ backgroundColor: DRINK_HEX[c.type] }}
-                />
-                <span className="text-sm font-semibold text-text/70 flex-1">{c.label}</span>
-                <span className="text-base font-black text-text">{c.count}</span>
-              </div>
-            ))}
+                  key={c.type}
+                  className={`flex items-center gap-3.5 px-5 py-3.5 ${i < categories.length - 1 ? 'border-b border-border' : ''}`}
+                >
+                  <div
+                    className="w-4 h-4 rounded-md"
+                    style={{ backgroundColor: DRINK_HEX[c.type] }}
+                  />
+                  <span className="text-sm font-semibold text-text/70 flex-1">{c.label}</span>
+                  <span className="text-base font-black text-text">{c.count}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </motion.div>
   )

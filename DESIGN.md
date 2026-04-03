@@ -116,3 +116,6 @@
 | 2026-04-03 | 酒 watermark in empty state | Japanese cultural reference that fits the product's aesthetic without being decorative noise |
 | 2026-04-03 | Sake cup emoji FAB | Ties the add button to the product identity instead of generic + |
 | 2026-04-03 | 20px side margins (up from 16px) | 44px→36px title + 20px margins gives better proportional breathing room on 375px screens |
+| 2026-04-03 | Gradient headers on all pages | DNA gets wine→amber gradient, Settings gets indigo gradient. Consistent with Collection. |
+| 2026-04-03 | 味 watermark in DNA empty state | "Flavor" kanji mirrors 酒 watermark in Collection empty state |
+| 2026-04-03 | Status badges in all headers | Backdrop-blur pills showing page-relevant stats (tasting count, sync status) |

@@ -263,7 +263,7 @@ export function Settings() {
 
   return (
     <motion.div
-      className="pb-24 px-5"
+      className="pb-24"
       variants={pageVariants}
       initial="initial"
       animate="animate"
@@ -295,12 +295,24 @@ export function Settings() {
         </div>
       )}
 
-      <div className="pt-5">
-        <h2 className="text-4xl font-black tracking-tighter font-display">Settings</h2>
+      {/* Gradient Header */}
+      <div
+        className="px-5 pt-6 pb-5"
+        style={{ background: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, #fefcf8 100%)' }}
+      >
+        <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+          Settings
+        </h1>
+        <div className="mt-4">
+          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white">
+            ⚙️ {connState === 'connected' ? 'Cloud backup enabled' : 'Local only'}
+          </div>
+        </div>
       </div>
 
+      <div className="px-5">
       {/* Cloud Sync Section */}
-      <div className="mt-8">
+      <div className="mt-6">
         <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
           Cloud Backup
           {syncStatus === 'error' && <span className="ml-2 text-[#c62828]">● sync failed</span>}
@@ -309,7 +321,7 @@ export function Settings() {
 
         {connState === 'unconfigured' ? (
           /* Onboarding card */
-          <div className="bg-bg-input rounded-2xl p-5">
+          <div className="bg-bg-card rounded-3xl p-5" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <div className="text-2xl mb-2">☁️</div>
             <div className="text-base font-bold text-text">Back up to your server</div>
             <div className="text-sm text-text-muted mt-1.5 leading-relaxed">
@@ -318,7 +330,11 @@ export function Settings() {
             </div>
             <button
               onClick={() => setConnState('configuring')}
-              className="mt-4 w-full py-3 rounded-2xl bg-text text-white text-sm font-bold border-none cursor-pointer"
+              className="mt-4 w-full py-3 rounded-2xl text-white text-sm font-bold border-none cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, #3949ab, #5c6bc0)',
+                boxShadow: '0 4px 16px rgba(57, 73, 171, 0.3)',
+              }}
             >
               Set up cloud backup
             </button>
@@ -378,7 +394,7 @@ export function Settings() {
         ) : (
           /* Connected state */
           <div className="space-y-3">
-            <div className="bg-[#2e7d32]/10 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="bg-[#2e7d32]/10 rounded-3xl px-4 py-3 flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-[#2e7d32]" />
               <div className="flex-1">
                 <div className="text-sm font-bold text-[#2e7d32]">Connected</div>
@@ -399,14 +415,19 @@ export function Settings() {
               <button
                 onClick={handlePushAll}
                 disabled={!!progressOverlay}
-                className="flex-1 py-3.5 rounded-2xl bg-text text-white text-sm font-bold border-none cursor-pointer disabled:opacity-40"
+                className="flex-1 py-3.5 rounded-2xl text-white text-sm font-bold border-none cursor-pointer disabled:opacity-40"
+                style={{
+                  background: 'linear-gradient(135deg, #3949ab, #5c6bc0)',
+                  boxShadow: '0 4px 16px rgba(57, 73, 171, 0.25)',
+                }}
               >
                 ☁️ Push All
               </button>
               <button
                 onClick={handlePullAll}
                 disabled={!!progressOverlay}
-                className="flex-1 py-3.5 rounded-2xl bg-bg-input text-text text-sm font-bold border-none cursor-pointer disabled:opacity-40"
+                className="flex-1 py-3.5 rounded-2xl bg-bg-card text-text text-sm font-bold border-none cursor-pointer disabled:opacity-40"
+                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
               >
                 📥 Pull All
               </button>
@@ -435,12 +456,15 @@ export function Settings() {
 
         <button
           onClick={handleExport}
-          className="w-full py-4 px-5 rounded-2xl bg-bg-input text-text text-base font-bold border-none cursor-pointer mb-3"
+          className="w-full py-4 px-5 rounded-3xl bg-bg-card text-text text-base font-bold border-none cursor-pointer mb-3"
+          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
         >
           📦 Export All Data
         </button>
 
-        <label className="block w-full py-4 px-5 rounded-2xl bg-bg-input text-text text-base font-bold cursor-pointer text-center">
+        <label className="block w-full py-4 px-5 rounded-3xl bg-bg-card text-text text-base font-bold cursor-pointer text-center"
+          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+        >
           📥 Import Backup
           <input type="file" accept=".json" onChange={handleImport} className="hidden" />
         </label>
@@ -459,10 +483,11 @@ export function Settings() {
       </div>
 
       <div className="mt-10 text-center text-xs text-text-light">
-        <p className="font-bold">Sip v1.1</p>
+        <p className="font-bold">Sip v1.2</p>
         <p className="mt-1">
           {isSyncConfigured() ? 'Cloud backup enabled' : 'Your data stays on this device'}
         </p>
+      </div>
       </div>
     </motion.div>
   )
