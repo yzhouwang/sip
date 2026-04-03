@@ -39,12 +39,15 @@ function validateTasting(t: unknown): string | null {
   return null
 }
 
+const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
 function base64ToBlob(dataUrl: string): Blob | undefined {
   try {
     if (typeof dataUrl !== 'string' || !dataUrl.includes(',')) return undefined
     const [meta, b64] = dataUrl.split(',')
     if (!b64) return undefined
     const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg'
+    if (!ALLOWED_IMAGE_MIMES.has(mime)) return undefined
     const bytes = atob(b64)
     const arr = new Uint8Array(bytes.length)
     for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
@@ -137,6 +140,11 @@ export function Settings() {
   }
 
   const handlePushAll = async () => {
+    if (!isSyncConfigured()) {
+      setConnState('unconfigured')
+      showStatus('Server disconnected. Reconfigure to push.', 'error')
+      return
+    }
     setPushProgress({ done: 0, total: 0 })
     try {
       const result = await pushAllToServer((done, total) => {
@@ -153,6 +161,11 @@ export function Settings() {
   }
 
   const handlePullAll = async () => {
+    if (!isSyncConfigured()) {
+      setConnState('unconfigured')
+      showStatus('Server disconnected. Reconfigure to pull.', 'error')
+      return
+    }
     setPullProgress({ done: 0, total: 0 })
     try {
       const result = await pullFromServer((done, total) => {
@@ -206,6 +219,7 @@ export function Settings() {
       const data = JSON.parse(text)
       if (!data.tastings || !Array.isArray(data.tastings)) {
         showStatus('Invalid backup file', 'error')
+        e.target.value = ''
         return
       }
 
