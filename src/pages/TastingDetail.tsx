@@ -80,9 +80,9 @@ export function TastingDetail() {
 
         {/* Title overlay */}
         <div className={`relative z-10 mt-auto p-5 ${photoUrl ? 'text-white' : isLightText ? 'text-white' : 'text-text'}`}>
-          <span className={`inline-block px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
+          <span className={`inline-block rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
             photoUrl ? 'bg-white/20' : isLightText ? 'bg-white/25' : 'bg-black/10'
-          }`}>
+          } px-2.5 py-0.5`}>
             {DRINK_LABELS[tasting.drinkType]}
           </span>
           <h1 className="text-3xl font-black tracking-tight mt-1">{tasting.name}</h1>

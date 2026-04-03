@@ -98,7 +98,7 @@ export function Collection() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowSearch(!showSearch)}
-              className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-none cursor-pointer"
+              className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-none cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -106,7 +106,8 @@ export function Collection() {
             </button>
             <button
               onClick={() => setSort(sort === 'date' ? 'rating' : 'date')}
-              className="h-10 px-3 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white border-none cursor-pointer"
+              className="h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white border-none cursor-pointer"
+              style={{ padding: '0 12px' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                 <path d="M3 6h18M3 12h12M3 18h6"/>
@@ -123,16 +124,17 @@ export function Collection() {
         </div>
 
         {/* Status tabs — segmented control inside gradient */}
-        <div className="mt-4 flex bg-white/15 backdrop-blur-sm rounded-xl p-1">
+        <div className="mt-4 flex bg-white/15 backdrop-blur-sm rounded-xl" style={{ padding: 4 }}>
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setStatusTab(tab.key)}
-              className={`flex-1 py-2 rounded-lg text-[12px] font-bold border-none cursor-pointer transition-all ${
+              className={`flex-1 rounded-lg text-[12px] font-bold border-none cursor-pointer transition-all ${
                 statusTab === tab.key
                   ? 'bg-white text-text shadow-sm'
                   : 'bg-transparent text-white/80'
               }`}
+              style={{ padding: '10px 0' }}
             >
               {tab.label}
             </button>
