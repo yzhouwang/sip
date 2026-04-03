@@ -47,3 +47,12 @@ body {
   min-height: 100dvh;
   position: relative;
 }
+
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(230, 81, 0, 0.4); }
+  50% { box-shadow: 0 6px 32px rgba(230, 81, 0, 0.6); }
+}
+
+/* Hide scrollbar on filter pills */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; }

@@ -53,20 +53,20 @@ export function DrinkCard({
         whileHover={{ scale: 1.02, rotate: -0.5 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className={`${colors.card} rounded-3xl overflow-hidden cursor-pointer col-span-2 flex min-h-[160px]`}
+        className={`${colors.card} rounded-[28px] overflow-hidden cursor-pointer flex min-h-[240px] relative`}
       >
-        <div className="w-[45%] flex items-center justify-center text-6xl opacity-40 relative">
+        <div className="w-[45%] flex items-center justify-center text-[100px] opacity-15 relative">
           {thumbUrl ? (
             <img src={thumbUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             DRINK_EMOJI[tasting.drinkType]
           )}
         </div>
-        <div className={`flex-1 p-5 flex flex-col justify-center ${isLightText ? 'text-white' : 'text-text'}`}>
-          <span className={`inline-block self-start px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${isLightText ? 'bg-white/25' : 'bg-black/10'}`}>
+        <div className={`flex-1 p-6 flex flex-col justify-center ${isLightText ? 'text-white' : 'text-text'}`}>
+          <span className={`inline-block self-start px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${isLightText ? 'bg-white/25' : 'bg-black/10'}`}>
             {DRINK_LABELS[tasting.drinkType]}
           </span>
-          <div className="text-[22px] font-black tracking-tight mt-1">{tasting.name}</div>
+          <div className="text-[28px] font-black tracking-tight mt-2 leading-tight">{tasting.name}</div>
           {tasting.location && (
             <div className="text-[13px] opacity-70 mt-1">{tasting.location}</div>
           )}
@@ -87,9 +87,9 @@ export function DrinkCard({
       whileHover={{ scale: 1.02, rotate: -0.5 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`${colors.card} rounded-3xl overflow-hidden cursor-pointer p-4 min-h-[190px] flex flex-col`}
+      className={`${colors.card} rounded-3xl overflow-hidden cursor-pointer p-4 min-h-[180px] flex flex-col`}
     >
-      <div className="text-[40px] opacity-40 relative">
+      <div className="text-[36px] opacity-40 relative">
         {thumbUrl ? (
           <img
             src={thumbUrl}
@@ -100,7 +100,7 @@ export function DrinkCard({
           DRINK_EMOJI[tasting.drinkType]
         )}
       </div>
-      <div className={`text-[17px] font-extrabold mt-2 tracking-tight ${isLightText ? 'text-white' : 'text-text'}`}>
+      <div className={`text-[16px] font-extrabold mt-2 tracking-tight ${isLightText ? 'text-white' : 'text-text'}`}>
         {tasting.name}
       </div>
       {tasting.location && (
