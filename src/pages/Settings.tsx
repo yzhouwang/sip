@@ -297,7 +297,7 @@ export function Settings() {
 
       {/* Gradient Header */}
       <div
-        className="px-5 pt-6 pb-5"
+        className="px-5 pt-8 pb-6"
         style={{ background: 'linear-gradient(135deg, #3949ab 0%, #5c6bc0 40%, #fefcf8 100%)' }}
       >
         <h1 className="text-[36px] font-black tracking-tighter font-display leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
@@ -312,7 +312,7 @@ export function Settings() {
 
       <div className="px-5">
       {/* Cloud Sync Section */}
-      <div className="mt-6">
+      <div className="mt-8">
         <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
           Cloud Backup
           {syncStatus === 'error' && <span className="ml-2 text-[#c62828]">● sync failed</span>}
@@ -449,14 +449,14 @@ export function Settings() {
       </div>
 
       {/* Local Backup Section */}
-      <div className="mt-8">
+      <div className="mt-10">
         <h3 className="text-xs text-text-light uppercase tracking-[2px] font-bold mb-4">
           Local Backup
         </h3>
 
         <button
           onClick={handleExport}
-          className="w-full py-4 px-5 rounded-3xl bg-bg-card text-text text-base font-bold border-none cursor-pointer mb-3"
+          className="w-full py-4 px-5 rounded-3xl bg-bg-card text-text text-base font-bold border-none cursor-pointer mb-4"
           style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
         >
           📦 Export All Data
@@ -482,7 +482,7 @@ export function Settings() {
         </p>
       </div>
 
-      <div className="mt-10 text-center text-xs text-text-light">
+      <div className="mt-12 text-center text-xs text-text-light">
         <p className="font-bold">Sip v1.2</p>
         <p className="mt-1">
           {isSyncConfigured() ? 'Cloud backup enabled' : 'Your data stays on this device'}

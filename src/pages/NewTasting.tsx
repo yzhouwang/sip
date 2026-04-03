@@ -162,7 +162,7 @@ export function NewTasting() {
 
   return (
     <motion.div
-      className="pb-8 px-4"
+      className="pb-8 px-5"
       variants={pageVariants}
       initial="initial"
       animate="animate"
@@ -170,7 +170,7 @@ export function NewTasting() {
       transition={{ duration: 0.2 }}
     >
       {/* Header */}
-      <div className="pt-4 pb-2 flex justify-between items-center">
+      <div className="pt-5 pb-4 flex justify-between items-center">
         <button
           onClick={() => navigate(-1)}
           className="text-sm text-text-muted font-semibold bg-transparent border-none cursor-pointer"
@@ -199,7 +199,7 @@ export function NewTasting() {
       {/* Photo */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className={`mt-2 h-44 rounded-[28px] border-[3px] border-dashed ${
+        className={`mt-3 h-36 rounded-[28px] border-[3px] border-dashed ${
           photoError ? 'border-[#c62828]/40 bg-[#c62828]/5' : 'border-border bg-white'
         } flex flex-col items-center justify-center cursor-pointer overflow-hidden relative`}
       >
@@ -227,7 +227,7 @@ export function NewTasting() {
       </div>
 
       {/* Drink type */}
-      <div className="flex gap-2 mt-4 flex-wrap">
+      <div className="flex gap-2.5 mt-6 flex-wrap">
         {DRINK_TYPES.map((type) => {
           const selected = drinkType === type
           const colors = DRINK_COLORS[type]
@@ -249,7 +249,7 @@ export function NewTasting() {
       </div>
 
       {/* Name */}
-      <div className="mt-5">
+      <div className="mt-7">
         <label className="text-xs text-text-light uppercase tracking-[2px] font-bold">Name</label>
         <input
           type="text"
@@ -261,7 +261,7 @@ export function NewTasting() {
       </div>
 
       {/* Rating */}
-      <div className="mt-5">
+      <div className="mt-6">
         <label className="text-xs text-text-light uppercase tracking-[2px] font-bold">
           Rating {rating > 0 && <span className="normal-case tracking-normal text-text-muted">· {RATING_LABELS[rating]}</span>}
         </label>
@@ -282,11 +282,11 @@ export function NewTasting() {
       </div>
 
       {/* Flavors */}
-      <div className="mt-5">
+      <div className="mt-7">
         <label className="text-xs text-text-light uppercase tracking-[2px] font-bold">
           Flavors <span className="normal-case tracking-normal text-text-muted">· {flavors.length}/5</span>
         </label>
-        <div className="flex gap-2 flex-wrap mt-2">
+        <div className="flex gap-2.5 flex-wrap mt-2">
           {FLAVORS.map((f) => {
             const selected = flavors.includes(f.id)
             const disabled = !selected && flavors.length >= 5
@@ -311,7 +311,7 @@ export function NewTasting() {
       </div>
 
       {/* Notes */}
-      <div className="mt-5">
+      <div className="mt-7">
         <label className="text-xs text-text-light uppercase tracking-[2px] font-bold">Notes</label>
         <textarea
           value={notes}
@@ -323,7 +323,7 @@ export function NewTasting() {
       </div>
 
       {/* Location */}
-      <div className="mt-4">
+      <div className="mt-6">
         <label className="text-xs text-text-light uppercase tracking-[2px] font-bold">
           Location
         </label>

@@ -119,3 +119,4 @@
 | 2026-04-03 | Gradient headers on all pages | DNA gets wine→amber gradient, Settings gets indigo gradient. Consistent with Collection. |
 | 2026-04-03 | 味 watermark in DNA empty state | "Flavor" kanji mirrors 酒 watermark in Collection empty state |
 | 2026-04-03 | Status badges in all headers | Backdrop-blur pills showing page-relevant stats (tasting count, sync status) |
+| 2026-04-04 | Crowdedness polish pass | Increased section spacing on New Tasting (mt-5→mt-7), Settings (taller header, wider section gaps), Collection (compacted filter pills, rebalanced CTA button proportions) |
