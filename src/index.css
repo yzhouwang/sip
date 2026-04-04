@@ -47,6 +47,15 @@ body {
   50% { box-shadow: 0 6px 32px rgba(230, 81, 0, 0.6); }
 }
 
+@keyframes fab-pulse-dark {
+  0%, 100% { box-shadow: 0 6px 24px rgba(230, 81, 0, 0.6); }
+  50% { box-shadow: 0 6px 32px rgba(230, 81, 0, 0.8); }
+}
+
+[data-theme="dark"] .fab-glow {
+  animation-name: fab-pulse-dark;
+}
+
 /* Dark mode — warm charcoal (Izakaya in low light) */
 [data-theme="dark"] {
   --color-bg: #1c1917;

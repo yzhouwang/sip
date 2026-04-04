@@ -305,7 +305,7 @@ export function Collection() {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => navigate('/new')}
-        className="fixed bottom-24 right-[max(1.25rem,calc((100vw-430px)/2+1.25rem))] w-14 h-14 rounded-full text-2xl border-none cursor-pointer flex items-center justify-center z-40"
+        className="fab-glow fixed bottom-24 right-[max(1.25rem,calc((100vw-430px)/2+1.25rem))] w-14 h-14 rounded-full text-2xl border-none cursor-pointer flex items-center justify-center z-40"
         style={{
           background: 'linear-gradient(135deg, #e65100, #ff8f00)',
           boxShadow: '0 6px 24px rgba(230, 81, 0, 0.4)',

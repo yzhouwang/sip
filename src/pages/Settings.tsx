@@ -10,7 +10,8 @@ import {
   type ThemePreference,
 } from '../lib/config'
 import { testConnection, onSyncStatus, type SyncStatus } from '../lib/sync'
-import { pushAllToServer, pullFromServer } from '../lib/tastings'
+import { pushAllToServer, pullFromServer, type ConflictItem } from '../lib/tastings'
+import { ConflictModal } from '../components/ConflictModal'
 
 const VALID_FLAVORS = new Set([
   'smoky', 'earthy', 'briny', 'sweet', 'floral', 'citrus', 'spicy',
@@ -90,6 +91,8 @@ export function Settings() {
   const [pullProgress, setPullProgress] = useState<{ done: number; total: number }>()
   const [lastSync, setLastSync] = useState(getLastSyncAt())
   const [theme, setTheme] = useState<ThemePreference>(getThemePreference())
+  const [conflicts, setConflicts] = useState<ConflictItem[]>([])
+  const [showConflictModal, setShowConflictModal] = useState(false)
 
   useEffect(() => {
     return onSyncStatus(setSyncStatus)
@@ -169,7 +172,10 @@ export function Settings() {
       })
       setPullProgress(undefined)
       setLastSync(getLastSyncAt())
-      showStatus(`Added ${result.added}, updated ${result.updated}${result.errors ? `, ${result.errors} errors` : ''}`)
+      if (result.conflicts.length > 0) {
+        setConflicts(result.conflicts)
+      }
+      showStatus(`Added ${result.added}, updated ${result.updated}${result.conflicts.length ? `, ${result.conflicts.length} conflicts` : ''}${result.errors ? `, ${result.errors} errors` : ''}`)
     } catch (err) {
       setPullProgress(undefined)
       showStatus('Pull failed', 'error')
@@ -437,6 +443,29 @@ export function Settings() {
               </button>
             </div>
 
+            {/* Conflict banner */}
+            {conflicts.length > 0 && (
+              <div
+                className="rounded-[20px] px-4 py-3 flex items-center gap-3"
+                style={{ background: 'rgba(245, 127, 23, 0.12)' }}
+              >
+                <span className="text-lg">⚠️</span>
+                <span className="flex-1 text-[13px] font-bold text-amber-700 dark:text-amber-400">
+                  {conflicts.length} conflict{conflicts.length > 1 ? 's' : ''} found
+                </span>
+                <button
+                  onClick={() => setShowConflictModal(true)}
+                  className="px-4 py-1.5 rounded-full text-[13px] font-bold text-white border-none cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+                  }}
+                >
+                  Review
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 onClick={handlePushAll}
@@ -515,6 +544,18 @@ export function Settings() {
         </p>
       </div>
       </div>
+
+      {/* Conflict resolution modal */}
+      {showConflictModal && conflicts.length > 0 && (
+        <ConflictModal
+          conflicts={conflicts}
+          onResolved={() => {
+            setConflicts([])
+            setShowConflictModal(false)
+            showStatus('All conflicts resolved')
+          }}
+        />
+      )}
     </div>
   )
 }

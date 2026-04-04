@@ -30,7 +30,10 @@ function StatusBadge({ status, drinkType }: { status: string; drinkType: string 
   if (status === 'tasted') return null
   const color = DRINK_HEX[drinkType as keyof typeof DRINK_HEX] || '#666'
   return (
-    <div
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25, delay: 0.2 }}
       className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center z-10"
       style={{ backgroundColor: color, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}
     >
@@ -43,7 +46,7 @@ function StatusBadge({ status, drinkType }: { status: string; drinkType: string 
           <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/>
         </svg>
       )}
-    </div>
+    </motion.div>
   )
 }
 
