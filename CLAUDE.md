@@ -20,6 +20,15 @@ Key routing rules:
 - Save progress, checkpoint, resume → invoke checkpoint
 - Code quality, health check → invoke health
 
+## Deploy Configuration
+- **Platform:** VPS (Ubuntu 24.04, Caddy + static files)
+- **SSH:** ubuntu@135.125.53.111
+- **App path:** /home/ubuntu/sip
+- **Production URL:** http://135.125.53.111
+- **Build tool:** bun (~/.bun/bin/bun)
+- **Web server:** Caddy (serves dist/ on :80, reverse proxies /api/* to :3001)
+- **Deploy steps:** `cd /home/ubuntu/sip && git pull origin main && ~/.bun/bin/bun install && ~/.bun/bin/bun run build`
+
 ## Design System
 Always read DESIGN.md before making any visual or UI decisions.
 All font choices, colors, spacing, and aesthetic direction are defined there.
