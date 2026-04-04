@@ -23,7 +23,7 @@ export function validateDTO(dto: unknown): string | null {
   if (!Array.isArray(obj.flavors) || obj.flavors.length > 5 || !obj.flavors.every((f: unknown) => typeof f === 'string' && VALID_FLAVORS.has(f))) return 'Invalid flavors'
   if (typeof obj.notes !== 'string') return 'Invalid notes'
   if (typeof obj.location !== 'string') return 'Invalid location'
-  if (obj.status !== undefined && !VALID_STATUS_SET.has(obj.status as string)) return 'Invalid status'
+  if (obj.status !== undefined && !VALID_STATUS_SET.has(obj.status as typeof VALID_STATUSES[number])) return 'Invalid status'
   if (obj.latitude !== undefined && typeof obj.latitude !== 'number') return 'Invalid latitude'
   if (obj.longitude !== undefined && typeof obj.longitude !== 'number') return 'Invalid longitude'
   if (obj.deletedAt !== undefined && obj.deletedAt !== null && (typeof obj.deletedAt !== 'string' || isNaN(Date.parse(obj.deletedAt)))) return 'Invalid deletedAt'

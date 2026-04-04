@@ -4,7 +4,7 @@
  */
 import { db } from './db'
 import type { Tasting, TastingDTO, DrinkType, FlavorId, TastingStatus } from './db'
-import { schedulePush, pushTasting, pullAll, downloadPhoto, shouldPull, hasConflict, fromDTO, toDTO } from './sync'
+import { schedulePush, pushTasting, pullAll, downloadPhoto, shouldPull, hasConflict, fromDTO } from './sync'
 import { isSyncConfigured, setLastSyncAt } from './config'
 
 export interface TastingInput {

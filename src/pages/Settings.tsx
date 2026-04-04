@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { db, DRINK_TYPES } from '../lib/db'
-import type { Tasting, DrinkType, FlavorId } from '../lib/db'
+import type { Tasting, DrinkType, FlavorId, TastingStatus } from '../lib/db'
 import {
   getServerUrl, setServerUrl as saveServerUrl,
   getApiKey, setApiKey as saveApiKey,
@@ -248,6 +248,7 @@ export function Settings() {
             flavors: raw.flavors as FlavorId[],
             notes: raw.notes || '',
             location: raw.location || '',
+            status: (raw.status as TastingStatus) || 'tasted',
             createdAt: new Date(raw.createdAt),
             updatedAt: new Date(raw.updatedAt),
           }
